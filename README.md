@@ -1,2 +1,2 @@
 # Loon
-PairwiseBERT
+PairwiseBERT on passage retrieval.

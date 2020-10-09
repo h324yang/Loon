@@ -6,7 +6,10 @@ from transformers import (
     AutoModel
 )
 
-from torch import nn
+
+ORIGINAL_MODELS = {
+    "bert-base-multilingual-cased": True
+}
 
 
 class PairwiseBERT(nn.Module):
@@ -27,14 +30,18 @@ class PairwiseBERT(nn.Module):
         *model_args, 
         **kwargs
     ):
+        if pretrained_model_name_or_path in ORIGINAL_MODELS:
+            bert = AutoModel.from_pretrained(
+                    pretrained_model_name_or_path, 
+                    *model_args, 
+                    **kwargs
+            )
+
+            return cls(bert, dim, *model_args, **kwargs)
         
-        bert = AutoModel.from_pretrained(
-                pretrained_model_name_or_path, 
-                *model_args, 
-                **kwargs
-        )
-        
-        return cls(bert, dim, *model_args, **kwargs)
+        else:
+            return torch.load(pretrained_model_name_or_path)
+            
 
     def forward(self, input_ids, attention_mask):
         bert_output = self.bert(input_ids, attention_mask, return_dict=True)
